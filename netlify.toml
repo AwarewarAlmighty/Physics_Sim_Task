@@ -1,0 +1,6 @@
+[build]
+  command = "npm i --legacy-peer-deps && npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "20.5.0"
