@@ -354,23 +354,22 @@ const ContactForceSimulation = () => {
 
       if (state.phase === 'contact') {
         const forceMag = calculateForce();
-        const arrowLength = Math.min(150 * scale, forceMag / 9);
-        const arrowX = nailX - 36 * scale;
+        const arrowLength = Math.min(140 * scale, forceMag / 9);
         drawArrow(
           ctx,
-          arrowX,
-          state.nailY + 6 * scale,
-          arrowX,
+          nailX + 50 * scale,
+          state.nailY + 10 * scale,
+          nailX + 50 * scale,
           state.nailY + arrowLength,
           '#ef4444',
           'F_H',
         );
         drawArrow(
           ctx,
-          arrowX,
-          state.nailY + 6 * scale,
-          arrowX,
-          state.nailY - arrowLength + 6 * scale,
+          nailX - 50 * scale,
+          state.nailY + 10 * scale,
+          nailX - 50 * scale,
+          state.nailY - arrowLength + 10 * scale,
           '#3b82f6',
           'F_N',
         );
@@ -574,7 +573,7 @@ const GravitySimulation = () => {
   const size = useElementSize(containerRef);
   const animationRef = useRef<number | null>(null);
   const starsRef = useRef<{ x: number; y: number; r: number; a: number }[]>([]);
-  const phaseRef = useRef(0);
+  const angleRef = useRef(0);
 
   useEffect(() => {
     starsRef.current = Array.from({ length: 120 }).map(() => ({
@@ -643,14 +642,23 @@ const GravitySimulation = () => {
       });
 
       if (!isPaused) {
-        phaseRef.current += 0.02;
+        const angularSpeed = 0.003 + (260 / distance) * 0.002;
+        angleRef.current += angularSpeed;
       }
 
       const earthRadius = 26 + earthMass * 2.6;
       const moonRadius = 12 + moonMass * 1.6;
 
-      const moonX = centerX + distance + Math.sin(phaseRef.current) * 6;
-      const moonY = centerY;
+      const moonX = centerX + Math.cos(angleRef.current) * distance;
+      const moonY = centerY + Math.sin(angleRef.current) * distance;
+
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
+      ctx.setLineDash([6, 10]);
+      ctx.lineWidth = 1.5;
+      ctx.arc(centerX, centerY, distance, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
 
       ctx.beginPath();
       ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
@@ -730,7 +738,7 @@ const GravitySimulation = () => {
     setEarthMass(6);
     setMoonMass(3);
     setDistance(220);
-    phaseRef.current = 0;
+    angleRef.current = 0;
   };
 
   return (
